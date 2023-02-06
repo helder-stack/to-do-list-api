@@ -1,0 +1,57 @@
+version: '3.3'
+services: 
+
+  backend: 
+    depends_on: 
+      - db
+    ports: 
+      - '3000:3000'
+    environment:
+      BACKEND_URL: "${BACKEND_URL}"
+      JWT_SECRET: "${JWT_SECRET}"
+      MAILER_HOST: "${MAILER_HOST}"
+      MAILER_SERVICE: "${MAILER_SERVICE}"
+      MAILER_PORT: "${MAILER_PORT}"
+      MAILER_EMAIL: "${MAILER_EMAIL}"
+      MAILER_PASS: "${MAILER_PASS}"
+      DB_HOST: '${DB_HOST}'
+      DB_PORT: '${DB_PORT}'
+      DB_USER: '${DB_USER}'
+      DB_PASS: '${DB_PASS}'
+      DB_NAME: '${DB_NAME}'
+    build: 
+      context: .
+      dockerfile: dockerfile
+    networks: 
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: 'always'
+    command: yarn start:dev
+    volumes:
+      - ./:/home/node/app
+
+  db:
+    image: 'mysql:5.7'
+    restart: 'always'
+    environment: 
+      MYSQL_ROOT_PASSWORD: '${DB_PASS}'
+      MYSQL_DATABASE: "${DB_NAME}"
+    ports: 
+      - '3306:3306'
+    expose:
+      - '3306'
+    networks: 
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./:/home/node/app/db
+
+networks: 
+  backend:
+      driver: bridge
+
+volumes:
+  todoList: 
+    external: true
